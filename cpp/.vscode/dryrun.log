@@ -1,0 +1,12 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/fpga/tokenizer/cpp'
+mkdir obj_x86 obj_x86/common
+chmod 777 obj_x86 obj_x86/common
+touch     obj_x86/CACHEDIR.TAG obj_x86/common/CACHEDIR.TAG
+g++ -m64  -O2 -g -Wall -Wno-write-strings -Wno-sign-compare -Wno-unused-result -Wno-strict-aliasing -std=c++11 -fpermissive -fcommon -DLINUX  -c axi_uart.cpp -o obj_x86/axi_uart.o
+g++ -m64  -O2 -g -Wall -Wno-write-strings -Wno-sign-compare -Wno-unused-result -Wno-strict-aliasing -std=c++11 -fpermissive -fcommon -DLINUX  -c main.cpp -o obj_x86/main.o
+g++ -m64  -O2 -g -Wall -Wno-write-strings -Wno-sign-compare -Wno-unused-result -Wno-strict-aliasing -std=c++11 -fpermissive -fcommon -DLINUX  -c serial_port.cpp -o obj_x86/serial_port.o
+g++ -m64 -pthread -o ss obj_x86/axi_uart.o obj_x86/main.o obj_x86/serial_port.o
+strip ss
+make: Leaving directory '/fpga/tokenizer/cpp'
+ 

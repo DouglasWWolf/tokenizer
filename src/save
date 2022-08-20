@@ -1,0 +1,6 @@
+cp tokenizer.v           /fpga/verilog_library
+cp strtoul.v             /fpga/verilog_library
+cp char_istream.v        /fpga/verilog_library
+cp axi4_noburst_master.v /fpga/verilog_library
+cp axi4_lite_slave.v     /fpga/verilog_library
+
