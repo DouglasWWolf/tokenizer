@@ -5,8 +5,9 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
+ 
 
-# Make data base, printed on Thu Aug 18 15:56:56 2022
+# Make data base, printed on Sat Aug 20 19:33:36 2022
 
 # Variables
 
@@ -259,7 +260,7 @@ GJS_DEBUG_OUTPUT = stderr
 # default
 .RECIPEPREFIX := 
 # makefile (from 'makefile', line 4)
-EXE = ss
+EXE = strcpy
 # environment
 GIO_LAUNCHED_DESKTOP_FILE = /var/lib/snapd/desktop/applications/code_code.desktop
 # environment
@@ -290,17 +291,8 @@ obj_x86/%.o: %.cpp
 %.cpp:
 
 # 3 implicit rules, 0 (0.0%) terminal.
- 
 
 # Files
-
-ss: obj_x86/axi_uart.o obj_x86/main.o obj_x86/serial_port.o
-#  Implicit rule search has not been done.
-#  Modification time never checked.
-#  File has not been updated.
-#  recipe to execute (from 'makefile', line 86):
-	$(CXX) -m$(X86_TYPE) -pthread -o $@ $(X86_OBJS)
-	strip $(X86EXE)
 
 mkdirs: obj_x86
 #  Implicit rule search has not been done.
@@ -353,9 +345,18 @@ axi_uart.h:
 # Not a target:
 makefile:
 #  Implicit rule search has been done.
-#  Last modified 2022-08-10 16:28:11.28466239
+#  Last modified 2022-08-20 19:33:34.013537357
 #  File has been updated.
 #  Successfully updated.
+
+ 
+strcpy: obj_x86/axi_uart.o obj_x86/main.o obj_x86/serial_port.o
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  recipe to execute (from 'makefile', line 86):
+	$(CXX) -m$(X86_TYPE) -pthread -o $@ $(X86_OBJS)
+	strip $(X86EXE)
 
 obj_x86/axi_uart.o: axi_uart.h serial_port.h
 #  Implicit rule search has not been done.
@@ -374,7 +375,7 @@ depend:
 #  recipe to execute (from 'makefile', line 127):
 	makedepend -p$(X86_OBJ_DIR)/ -Y *.cpp 2>/dev/null
 
-x86: mkdirs ss
+x86: mkdirs strcpy
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
@@ -445,12 +446,12 @@ obj_x86:
 
 # No general ('VPATH' variable) search path.
 
-# strcache buffers: 1 (0) / strings = 31 / storage = 282 B / avg = 9 B
-# current buf: size = 8162 B / used = 282 B / count = 31 / avg = 9 B
+# strcache buffers: 1 (0) / strings = 31 / storage = 286 B / avg = 9 B
+# current buf: size = 8162 B / used = 286 B / count = 31 / avg = 9 B
 
 # strcache performance: lookups = 67 / hit rate = 53%
 # hash-table stats:
 # Load=31/8192=0%, Rehash=0, Collisions=5/67=7%
-# Finished Make data base on Thu Aug 18 15:56:56 2022
+# Finished Make data base on Sat Aug 20 19:33:36 2022
 
  

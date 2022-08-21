@@ -156,13 +156,21 @@ int main(int argc, const char** argv)
         exit(1);        
     }
 
-    if (argv[1] == NULL)
+    if (argv[1] == NULL) 
+    {
+        printf("Missing AXI address parameter on command line\n");
+        exit(1);        
+    }
+
+    uint32_t axiAddress=strtoul(argv[1], 0, 0);
+
+    if (argv[2] == NULL)
     {
         printf("Missing string parameter on command line\n");
         exit(1);
-
     }
-    strcpyToAxi(0xC0000000, argv[1]);
+
+    strcpyToAxi(axiAddress, argv[2]);
 
     // Tell the OS that all is well
     return 0;
