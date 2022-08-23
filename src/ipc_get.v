@@ -42,7 +42,7 @@ module ipc_get #
     output FIFO_EMPTY,
 
     // When the FIFO is not empty, this will contain a token
-    output[`IPC_TOKEN_WIDTH-1:0] TOKEN,
+    output[`IPC_TOKEN_WIDTH-1:0] FIFO_DATA,
 
     // On any cycle when this is high, the FIFO will advance by 1
     input FIFO_RD_EN,
@@ -243,14 +243,14 @@ module ipc_get #
     data_fifo
     (
         .rst        (~resetn   ),
-        .wr_clk     (clk       ),
+        .wr_clk     (clk       ), 
 
         .full       (fifo_full ),
         .din        (axi_rdata ),
         .wr_en      (fifo_wr_en),
 
         .empty      (FIFO_EMPTY),
-        .dout       (TOKEN     ),
+        .dout       (FIFO_DATA ),
         .rd_en      (FIFO_RD_EN),
 
       //------------------------------------------------------------
