@@ -1,6 +1,12 @@
-cp tokenizer.v           /fpga/verilog_library
-cp strtoul.v             /fpga/verilog_library
-cp char_istream.v        /fpga/verilog_library
-cp axi4_noburst_master.v /fpga/verilog_library
-cp axi4_lite_slave.v     /fpga/verilog_library
+dest=/fpga/verilog_library
+cp tokenizer.v               $dest 
+cp strtoul.v                 $dest
+cp char_istream.v            $dest
+cp axi4_noburst_master.v     $dest 
+cp axi4_lite_slave.v         $dest
+cp axi4_lite_slave_example.v $dest 
+cp h2f_ipc_core.v            $dest 
+cp h2f_ipc_example.v         $dest 
+
+
 

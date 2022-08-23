@@ -98,8 +98,6 @@ module axi4_noburst_master#
     //==========================================================================
 
 );
-    localparam AXI_SIZE_WIDTH        = 3;
-    localparam AXI_RESP_WIDTH        = 2;
     localparam AXI_DATA_BYTES        = (AXI_DATA_WIDTH/8);
     localparam AXI_STRB_WIDTH        = AXI_DATA_BYTES;
     localparam[AXI_STRB_WIDTH:0] ONE = 1;

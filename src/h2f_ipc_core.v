@@ -33,9 +33,18 @@ module h2f_ipc_core #
     
     // The address of the start of our RAM buffer
     parameter[64:0] RAM_START = 64'hC000_0000    
-)
-(
+)  
+( 
     input clk, resetn,
+
+    // This will be high when the derived dispatcher is ready to accept a new msg
+    input DISPATCHER_IDLE,
+    
+    // We drive this high to tell the derived dispatcher that "FIRST_TOKEN" is valid
+    output reg DISPATCHER_START,
+    
+    // This is the first token of the most recently tokenized message
+    output[TOKEN_WIDTH-1:0] FIRST_TOKEN,
 
     //================== This is an AXI4-Lite slave interface ==================
         
@@ -139,8 +148,6 @@ module h2f_ipc_core #
     wire        ashi_ridle;     // Output: 1 = Read state machine is idle
     //==========================================================================
 
-
-
     // The state of our two state machines
     reg[2:0] slv_read_state, slv_write_state;
 
@@ -149,9 +156,9 @@ module h2f_ipc_core #
     assign ashi_ridle = (ashi_read  == 0) && (slv_read_state  == 0);
 
     // Some convenient human readable names for the AXI registers
-    localparam REG_Q_WADDR_H = 0; // Read only
-    localparam REG_Q_WADDR_L = 1; // Read only
-    localparam REG_Q_WRITE   = 2; // Write only
+    localparam REG_Q_WADDR_H  = 0; // Read only
+    localparam REG_Q_WADDR_L  = 1; // Read only
+    localparam REG_Q_WRITE    = 2; // Write only
 
     // These are the valid values for ashi_rresp and ashi_wresp
     localparam OKAY   = 0;
@@ -184,6 +191,8 @@ module h2f_ipc_core #
     // do this so that the user read of REG_Q_WADDR_H and REG_Q_WADDR_L is atomic
     reg[63:0] latched_addr;
 
+    // This is where parsed tokens will be stored
+    localparam[63:0] TOKENIZED_ADDR = RAM_START + (INPUT_STR_MAXLEN * INPUT_Q_SIZE);
 
     //===============================================================================================
     // Handler for AXI slave read requests
@@ -284,7 +293,6 @@ module h2f_ipc_core #
     //===============================================================================================
     reg [M_AXI_ADDR_WIDTH-1:0] tokenizer_str_addr;
     reg [M_AXI_ADDR_WIDTH-1:0] tokenizer_out_addr;
-    wire[TOKEN_WIDTH-1:0]      tokenizer_first_token;
     reg                        tokenizer_start;
     wire                       tokenizer_idle;
     //===============================================================================================
@@ -300,8 +308,9 @@ module h2f_ipc_core #
 
     always @(posedge clk) begin
 
-        // When this is active, it should strobe high for exactly one clock cycle
-        tokenizer_start <= 0;
+        // When these are active, they should strobe high for exactly one clock cycle
+        tokenizer_start  <= 0;
+        DISPATCHER_START <= 0;
 
         if (resetn == 0) begin
             dispatcher_state <= 0;
@@ -310,13 +319,26 @@ module h2f_ipc_core #
         // If there is a new input string waiting to be tokenized and dispatched...
         0:  if (input_q_entries_written != input_q_entries_read) begin
                 tokenizer_str_addr <= RAM_START + (input_q_rindex << $clog2(INPUT_STR_MAXLEN));
-                tokenizer_out_addr <= RAM_START + (INPUT_STR_MAXLEN * INPUT_Q_SIZE);
+                tokenizer_out_addr <= TOKENIZED_ADDR;
                 tokenizer_start    <= 1;
                 dispatcher_state   <= 1;
             end
 
-        // Wait for tokenization process to complete, then...
-        1:  if (tokenizer_idle) begin
+
+        // We wait for the tokenizer to be done and for the dispatcher to be ready
+        // to dispatch a new message, then:
+        1:  if (tokenizer_idle && DISPATCHER_IDLE) begin
+                
+                // Tell the dispatcher that a new message is ready for dispatch
+                DISPATCHER_START <=1;
+                
+                // And go wait for the derived dispatcher to finish
+                dispatcher_state <= 2;
+            
+            end
+
+        // When the derived dispatcher is finished dispatching the message...
+        2:  if (DISPATCHER_IDLE) begin
 
                 // Increment the queue's "read index" using circular arithmetic
                 input_q_rindex <= (input_q_rindex == INPUT_Q_SIZE-1) ? 0 : input_q_rindex +1;
@@ -324,8 +346,9 @@ module h2f_ipc_core #
                 // Keep track of how many queue entries have been read
                 input_q_entries_read <= input_q_entries_read + 1;
 
-                // And go back to waiting for input strings to arrive in the queue
+                // And go back to waiting for a new incoming message
                 dispatcher_state <= 0;
+            
             end
 
         endcase
@@ -413,7 +436,7 @@ module h2f_ipc_core #
         // Tokenizer control
         .STR_ADDR       (tokenizer_str_addr),
         .OUT_ADDR       (tokenizer_out_addr),
-        .FIRST_TOKEN    (tokenizer_first_token),
+        .FIRST_TOKEN    (FIRST_TOKEN),
         .START          (tokenizer_start),
         .IDLE           (tokenizer_idle),
     
